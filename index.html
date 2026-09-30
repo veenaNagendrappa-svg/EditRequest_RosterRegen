@@ -59,6 +59,10 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 .rna-card-link:hover{color:#003179;text-decoration:underline;}
 .rna-card-btn{ height:32px;padding:0 18px;border:none;border-radius:5px; background:#003179;color:white;cursor:pointer; font-family:inherit;font-size:11px;font-weight:600; }
 .rna-card-btn:hover{background:#002060;}
+.rna-card-btn[disabled]{background:#c3c9d1;cursor:not-allowed;}
+.rna-inline-noshift{display:inline-flex;align-items:center;gap:5px;margin-left:10px;font-size:11.5px;}
+.rna-inline-noshift .warn-icon{color:#a05a00;}
+.rna-inline-noshift a{color:#1976d2;font-weight:600;cursor:pointer;text-decoration:underline;}
 
 .badge-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
 .ae-banner-pill{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;border:1px solid #fcd34d;border-radius:4px;padding:3px 8px;font-size:10.5px;font-weight:600;color:#92400e;white-space:nowrap;}
@@ -174,12 +178,17 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
       <div class="rna-map-arrow">→</div>
       <div class="rna-map-col">
         <div class="rna-map-label">New agency</div>
-        <div class="rna-map-value" id="rnaToValue">Metro North Hospital</div>
+        <div class="rna-map-value" style="display:flex;align-items:center;">
+          <span id="rnaToValue">Metro North Hospital</span>
+          <span class="rna-inline-noshift" id="rnaNoShiftInline" style="display:none;">
+            <span class="warn-icon">⚠</span><a onclick="alert('Opens the existing Configure Shift side panel.')">Configure shifts</a>
+          </span>
+        </div>
       </div>
     </div>
     <div class="rna-card-ftr">
       <button class="rna-card-link" onclick="erClearRoster()">Clear roster</button>
-      <button class="rna-card-btn" onclick="erRegenerateRoster()">Regenerate roster</button>
+      <button class="rna-card-btn" id="rnaRegenBtn" onclick="erRegenerateRoster()">Regenerate roster</button>
     </div>
   </div>
 
@@ -245,10 +254,11 @@ const scenarios = {
     ]
   },
   'agency-panel': {
-    note: 'Coordinator changed Agency from "St John of God – Bendigo" to "Metro North Hospital" on a request that already has a roster. Panel appears — plain text on both sides, no dropdown, since a Request only ever has one agency. Roster reference below is read-only: Action/Edit hidden, no warnings shown even though Wed would flag once regenerated.',
+    note: 'Coordinator changed Agency from "St John of God – Bendigo" to "Metro North Hospital" on a request that already has a roster. Panel appears — plain text on both sides, no dropdown, since a Request only ever has one agency. The inline warning + "Configure shifts" link next to "New agency" is the same confirmed pattern as CPN-16105\'s multi-row case, applied here to the single row — Regenerate roster stays disabled until resolved. Roster reference below is read-only: Action/Edit hidden, no warnings shown even though Wed would flag once regenerated.',
     agency: 'Metro North Hospital',
     showAgencyPanel: true, showDurationPanel: false, showRegionOnly: false, showBadge: false,
     rnaFrom: 'St John of God – Bendigo', rnaTo: 'Metro North Hospital',
+    noShift: true,
     rows: [
       ['Mon 22/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
       ['Tue 23/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
@@ -368,6 +378,8 @@ function erSwitchScenario(key) {
   if (s.showAgencyPanel) {
     document.getElementById('rnaFromValue').textContent = s.rnaFrom || '';
     document.getElementById('rnaToValue').textContent = s.rnaTo || '';
+    document.getElementById('rnaNoShiftInline').style.display = s.noShift ? 'inline-flex' : 'none';
+    document.getElementById('rnaRegenBtn').disabled = !!s.noShift;
   }
   document.getElementById('rnaDuration').style.display = s.showDurationPanel ? 'block' : 'none';
   document.getElementById('regionOnlyNote').style.display = s.showRegionOnly ? 'block' : 'none';

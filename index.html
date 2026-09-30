@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>73035 — NEXT512A — Nursing — Dec-22 — Roster Regeneration Demo (Edit Request)</title>
+<style>
+* { box-sizing: border-box; }
+body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:#fff; color:#111827; }
+
+.page-header { padding:16px 24px 0; border-bottom:1px solid #e5e7eb; }
+.page-title { font-size:16px; font-weight:700; color:#111827; margin-bottom:2px; }
+.page-subtitle { font-size:12px; color:#6b7280; padding-bottom:12px; }
+
+.demo-switch { padding:10px 24px; background:#f0f9ff; border-bottom:1px solid #bae6fd; font-size:12px; }
+.demo-switch label { font-weight:600; color:#0c4a6e; margin-right:8px; }
+.demo-switch select { height:28px; font-size:12px; border:1px solid #bae6fd; border-radius:4px; padding:0 8px; font-family:inherit; }
+.demo-note { padding:8px 24px; background:#fffbeb; border-bottom:1px solid #fde68a; font-size:11.5px; color:#92400e; line-height:1.5; }
+
+.page-body { max-width:960px; margin:0; padding:20px 24px 60px; }
+
+.row { display:flex; flex-wrap:wrap; gap:0 20px; margin-bottom:16px; }
+.col-md-6 { flex:1 1 calc(50% - 10px); min-width:260px; }
+.col-12 { flex:1 1 100%; }
+
+.field-label { display:block; font-size:11px; font-weight:500; color:#374151; margin-bottom:4px; }
+.field-label .req { color:#dc2626; margin-left:2px; }
+.field-input, .field-select {
+  width:100%; height:36px; border:1px solid #d1d5db; border-radius:4px;
+  padding:0 10px; font-family:inherit; font-size:13px; color:#111827;
+  background:white; outline:none;
+}
+.field-input:focus, .field-select:focus { border-color:#1976d2; box-shadow:0 0 0 2px rgba(25,118,210,.12); }
+.field-input[readonly] { background:#f9fafb; color:#6b7280; }
+.field-input.not-specified { color:#9ca3af; font-style:italic; }
+
+.section-title { font-size:13px; font-weight:700; color:#1976d2; text-transform:uppercase; letter-spacing:.04em; padding:20px 0 12px; border-top:1px solid #f0f2f5; margin-top:8px; }
+
+.toggle-wrap { display:flex; align-items:center; gap:8px; padding:4px 0; }
+.toggle-track { width:36px; height:20px; border-radius:10px; background:#1976d2; position:relative; flex-shrink:0; }
+.toggle-knob { position:absolute; top:2px; left:18px; width:16px; height:16px; border-radius:50%; background:white; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.toggle-label { font-size:13px; color:#374151; font-weight:600; }
+
+.tabs { display:flex; gap:20px; border-bottom:1px solid #e5e7eb; margin-bottom:14px; }
+.tab { font-size:12.5px; font-weight:600; color:#6b7280; padding:8px 0; cursor:default; }
+.tab.active { color:#1976d2; border-bottom:2px solid #1976d2; }
+
+/* "Roster needs attention" inline card — matches CPN-16105's prototype conventions,
+   simplified here since Edit Request never has a dropdown, multi-row, or source toggle */
+.rna-card{ background:#eef3f8;border:1px solid #b9d3f0;border-radius:8px; padding:14px 16px;margin:8px 0 16px; }
+.rna-card-title{font-size:13px;font-weight:700;color:#003179;margin-bottom:6px;}
+.rna-card-desc{font-size:12px;color:#374151;line-height:1.5;margin-bottom:14px;}
+.rna-map-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;font-size:12.5px;}
+.rna-map-col{flex:1;}
+.rna-map-label{font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px;}
+.rna-map-value{font-size:13px;font-weight:600;color:#111827;}
+.rna-map-arrow{color:#9ca3af;font-size:16px;padding-top:14px;}
+.rna-card-ftr{display:flex;justify-content:flex-end;align-items:center;gap:16px;flex-wrap:wrap;}
+.rna-card-link{ background:none;border:none;padding:0;cursor:pointer; font-family:inherit;font-size:11px;font-weight:600;color:#555; }
+.rna-card-link:hover{color:#003179;text-decoration:underline;}
+.rna-card-btn{ height:32px;padding:0 18px;border:none;border-radius:5px; background:#003179;color:white;cursor:pointer; font-family:inherit;font-size:11px;font-weight:600; }
+.rna-card-btn:hover{background:#002060;}
+
+.badge-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.ae-banner-pill{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;border:1px solid #fcd34d;border-radius:4px;padding:3px 8px;font-size:10.5px;font-weight:600;color:#92400e;white-space:nowrap;}
+.ae-banner-pill.insufficient{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+.ae-banner-pill.overallocated{background:#fef3c7;border-color:#fcd34d;color:#92400e;}
+
+.rna-card .roster-inner-box { background:white; border-radius:6px; padding:14px 16px; margin-top:4px; }
+.roster-inner-title { display:none; }
+.rna-card .roster-inner-title { display:block; font-size:13px; font-weight:700; color:#003179; margin-bottom:10px; }
+.roster-week-label { font-size:11.5px; font-weight:700; color:#1976d2; margin-bottom:4px; }
+.roster-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+.roster-table th { text-align:left; font-weight:600; color:#00193e; padding:6px 8px; border-bottom:1px solid #e5e7eb; font-size:11px; }
+.roster-table td { padding:7px 8px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+.roster-table tr.flagged { background:#fef3c733; }
+.review-reason { color:#b60000; font-weight:700; margin-left:6px; cursor:help; }
+.not-scheduled { color:#9ca3af; font-style:italic; }
+.edit-link { font-size:11.5px; color:#1976d2; text-decoration:none; cursor:pointer; }
+.edit-link:hover { text-decoration:underline; }
+.edit-link[disabled] { color:#c3c9d1; cursor:not-allowed; text-decoration:none; }
+
+.btn-outline { height:36px; padding:0 16px; border:1.5px solid #1976d2; background:white; border-radius:5px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; color:#1976d2; }
+.btn-solid { height:36px; padding:0 16px; border:none; background:#1976d2; border-radius:5px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; color:white; }
+.page-footer { display:flex; gap:10px; justify-content:flex-end; padding:16px 24px; border-top:1px solid #e5e7eb; background:#fafafa; }
+
+/* Confirmation dialog — finalized wording (Cancel / Clear Roster & Save) */
+.dlg-overlay { position:fixed; inset:0; background:rgba(15,23,42,.4); display:none; align-items:center; justify-content:center; z-index:900; }
+.dlg-overlay.show { display:flex; }
+.dlg-box { background:white; border-radius:10px; width:380px; max-width:90vw; padding:20px 22px; box-shadow:0 12px 32px rgba(0,0,0,.25); }
+.dlg-title { font-size:14.5px; font-weight:700; color:#00193e; margin-bottom:8px; }
+.dlg-body { font-size:12.5px; color:#374151; line-height:1.55; margin-bottom:18px; }
+.dlg-actions { display:flex; justify-content:flex-end; gap:10px; }
+
+.open-q { background:#f5f3ff; border:1px dashed #a78bfa; border-radius:8px; padding:12px 14px; margin:8px 0 16px; font-size:11.5px; color:#5b21b6; line-height:1.6; }
+.open-q strong { display:block; margin-bottom:3px; font-size:12px; }
+
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; padding:0; margin:-1px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">73035 — NEXT512A — Nursing — Dec-22</div>
+  <div class="page-subtitle">InPlace Next512a · Nursing · Aged Care</div>
+</div>
+
+<div class="demo-switch">
+  <label for="scenarioSwitch">Demo scenario:</label>
+  <select id="scenarioSwitch" onchange="erSwitchScenario(this.value)">
+    <option value="base">Base state — no trigger fired yet</option>
+    <option value="agency-panel">Agency changed — panel open (before Regenerate)</option>
+    <option value="agency-regen">Agency changed — after Regenerate roster (worked example)</option>
+    <option value="duration-panel">Duration/date changed — panel open</option>
+    <option value="unresolved-dialog">Leaving panel unresolved — confirmation dialog</option>
+    <option value="region-before">Region-level roster exists — before agency added</option>
+    <option value="region-panel">Region-level — agency added, panel open</option>
+    <option value="region-regen">Region-level — after Regenerate roster</option>
+    <option value="region-reverse">Reverse direction — Agency removed, reverts to region-level</option>
+  </select>
+</div>
+<div class="demo-note" id="scenarioNote"></div>
+
+<div class="page-body">
+
+  <div class="row">
+    <div class="col-md-6">
+      <label class="field-label">Region <span class="req">*</span></label>
+      <select class="field-select"><option>Victoria</option></select>
+    </div>
+    <div class="col-md-6">
+      <label class="field-label">Agency <span class="req">*</span></label>
+      <input class="field-input" id="agencyField" value="St John of God – Bendigo" readonly>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <label class="field-label">Placement Dates <span class="req">*</span></label>
+      <input class="field-input" value="22/12/2025 – 26/12/2025" readonly>
+    </div>
+    <div class="col-md-6">
+      <label class="field-label">Duration <span class="req">*</span></label>
+      <input class="field-input" value="5 Days" readonly>
+    </div>
+  </div>
+
+  <div class="section-title">Schedule</div>
+
+  <div class="toggle-wrap">
+    <div class="toggle-track"><div class="toggle-knob"></div></div>
+    <span class="toggle-label">Specify Roster</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active">Pattern</div>
+    <div class="tab">Calendar</div>
+  </div>
+
+  <!-- Decided flow for region-level rosters — depends on CPN-15133 being fixed first -->
+  <div class="open-q" id="regionOnlyNote" style="display:none;">
+    <strong>Depends on CPN-15133 (Generate is currently broken for region-level requests) — confirmed with Felix</strong>
+    Once a region-level roster can be generated, this slots into the existing panel unchanged — single agency, plain text, no dropdown, same 4-hour matching engine as every other trigger. Two things Felix added on review: (1) the panel label reads "Region: [RegionName]" rather than "Not Specified" — reads correctly in both directions (agency added, or agency removed reverting to region-level); (2) Bulk Allocate's shift-conversion gap is out of scope here — it isn't specific to region-level requests, and falls under the separate Request with Shifts / Placement without Shifts workflow.
+  </div>
+
+  <!-- Roster needs attention — agency change trigger -->
+  <div class="rna-card" id="rnaAgency" style="display:none;">
+    <div class="rna-card-title">Roster needs attention</div>
+    <div class="rna-card-desc">This change requires the roster to be updated. Choose how to proceed.</div>
+    <div class="rna-map-row">
+      <div class="rna-map-col">
+        <div class="rna-map-label">Rostered agency</div>
+        <div class="rna-map-value" id="rnaFromValue">St John of God – Bendigo</div>
+      </div>
+      <div class="rna-map-arrow">→</div>
+      <div class="rna-map-col">
+        <div class="rna-map-label">New agency</div>
+        <div class="rna-map-value" id="rnaToValue">Metro North Hospital</div>
+      </div>
+    </div>
+    <div class="rna-card-ftr">
+      <button class="rna-card-link" onclick="erClearRoster()">Clear roster</button>
+      <button class="rna-card-btn" onclick="erRegenerateRoster()">Regenerate roster</button>
+    </div>
+  </div>
+
+  <!-- Roster needs attention — duration/date change trigger (no agency fields) -->
+  <div class="rna-card" id="rnaDuration" style="display:none;">
+    <div class="rna-card-title">Roster needs attention</div>
+    <div class="rna-card-desc">This change requires the roster to be updated. Choose how to proceed.</div>
+    <div class="rna-card-ftr">
+      <button class="rna-card-link">Clear roster</button>
+      <button class="rna-card-btn">Regenerate roster</button>
+    </div>
+  </div>
+
+  <!-- Anchor: where the roster box lives when no panel is open (normal page position) -->
+  <div id="rosterNormalAnchor"></div>
+
+  <div id="rosterInnerBox" class="roster-inner-box">
+    <div class="roster-inner-title" id="rosterInnerTitle">Request's current roster</div>
+    <div id="badgeRow" class="badge-row" style="display:none;">
+      <span class="ae-banner-pill insufficient">Insufficient: 2/3 Days</span>
+    </div>
+    <div class="roster-week-label">Week 1</div>
+    <table class="roster-table" id="rosterTable">
+      <tr><th style="width:15%">Day</th><th style="width:32%">Agency</th><th>Shift</th><th>Start Time</th><th>End Time</th><th style="width:8%"></th></tr>
+      <tbody id="rosterBody"></tbody>
+    </table>
+
+    <div style="margin-top:10px; display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn-outline" style="height:30px;padding:0 12px;font-size:11px;" id="editPatternBtn">Edit Pattern</button>
+      <button class="btn-outline" style="height:30px;padding:0 12px;font-size:11px;" id="addShiftsBtn">Add Extra Shifts</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <button class="btn-outline">Cancel</button>
+  <button class="btn-solid" onclick="erAttemptSave()">Save</button>
+</div>
+
+<!-- Confirmation dialog: leaving panel unresolved -->
+<div class="dlg-overlay" id="unresolvedDlg">
+  <div class="dlg-box">
+    <div class="dlg-title">Roster needs attention</div>
+    <div class="dlg-body">You haven't decided how to update the roster yet.</div>
+    <div class="dlg-actions">
+      <button class="btn-outline" onclick="erCloseDialog()">Cancel</button>
+      <button class="btn-solid">Clear Roster & Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const scenarios = {
+  base: {
+    note: 'Base state. Agency and roster already set, Specify Roster on, nothing has triggered the panel yet — matches the real captured screen.',
+    agency: 'St John of God – Bendigo',
+    showAgencyPanel: false, showDurationPanel: false, showRegionOnly: false, showBadge: false,
+    rows: [
+      ['Mon 22/12','St John of God – Bendigo','AM','07:00','15:30', false, false],
+      ['Tue 23/12','St John of God – Bendigo','AM','07:00','15:30', false, false],
+      ['Wed 24/12','Not Scheduled','','','', false, true],
+    ]
+  },
+  'agency-panel': {
+    note: 'Coordinator changed Agency from "St John of God – Bendigo" to "Metro North Hospital" on a request that already has a roster. Panel appears — plain text on both sides, no dropdown, since a Request only ever has one agency. Roster reference below is read-only: Action/Edit hidden, no warnings shown even though Wed would flag once regenerated.',
+    agency: 'Metro North Hospital',
+    showAgencyPanel: true, showDurationPanel: false, showRegionOnly: false, showBadge: false,
+    rnaFrom: 'St John of God – Bendigo', rnaTo: 'Metro North Hospital',
+    rows: [
+      ['Mon 22/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+      ['Tue 23/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+      ['Wed 24/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+    ],
+    readOnly: true
+  },
+  'agency-regen': {
+    note: 'Regenerate roster clicked. Worked example from CPN-16103: Mon\'s closest match starts 08:00 (1.5hrs off, within 4hrs) → populates silently. Wed\'s closest match starts 11:00 (4.5hrs off) → populates but flagged. Fri has no AM shift at all → "Not Scheduled", no flag. Result: 2/3 requested days actually scheduled → Insufficient badge.',
+    agency: 'Metro North Hospital',
+    showAgencyPanel: false, showDurationPanel: false, showRegionOnly: false, showBadge: true,
+    rows: [
+      ['Mon 22/12','Metro North Hospital','AM','08:00','16:30', false, false],
+      ['Wed 24/12','Metro North Hospital','AM','11:00','19:30', true, false],
+      ['Fri 26/12','Not Scheduled','','','', false, true],
+    ]
+  },
+  'duration-panel': {
+    note: 'Coordinator changed Duration/dates on a request that already has a roster — independent trigger from agency change. No agency fields shown on this panel at all. "Clear roster" here behaves differently to the agency-change version: it retains the existing days instead of blanking them.',
+    agency: 'St John of God – Bendigo',
+    showAgencyPanel: false, showDurationPanel: true, showRegionOnly: false, showBadge: false,
+    rows: [
+      ['Mon 22/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+      ['Tue 23/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+    ],
+    readOnly: true
+  },
+  'unresolved-dialog': {
+    note: 'Coordinator changed the agency, left the panel open (neither Clear roster nor Regenerate roster chosen), then clicked Save. Confirmation dialog fires — click Save below to see it again.',
+    agency: 'Metro North Hospital',
+    showAgencyPanel: true, showDurationPanel: false, showRegionOnly: false, showBadge: false,
+    rnaFrom: 'St John of God – Bendigo', rnaTo: 'Metro North Hospital',
+    rows: [
+      ['Mon 22/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+      ['Tue 23/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+      ['Wed 24/12','St John of God – Bendigo','AM','06:30','15:30', false, false],
+    ],
+    readOnly: true,
+    autoDialog: true
+  },
+  'region-before': {
+    note: 'Assumes CPN-15133 is fixed. Region-level request — no Agency, roster already built using core shifts (e.g. "AM Early") rather than agency shifts. Every day shows "Not Specified." Nothing has been triggered yet.',
+    agency: '',
+    showAgencyPanel: false, showDurationPanel: false, showRegionOnly: false, showBadge: false,
+    rows: [
+      ['Mon 22/12','Not Specified','AM Early','06:30','15:30', false, false],
+      ['Tue 23/12','Not Specified','AM Early','06:30','15:30', false, false],
+      ['Wed 24/12','Not Specified','AM Early','06:30','15:30', false, false],
+    ]
+  },
+  'region-panel': {
+    note: 'Coordinator selects Agency "Metro North Hospital" on this region-level request. Same panel as any other agency change. Per Felix\'s feedback, the panel label reads "Region: Victoria" rather than "Not Specified" — same underlying resolution, clearer label. Still plain text, no dropdown, since a Request only ever has one agency.',
+    agency: 'Metro North Hospital',
+    showAgencyPanel: true, showDurationPanel: false, showRegionOnly: true, showBadge: false,
+    rnaFrom: 'Region: Victoria', rnaTo: 'Metro North Hospital',
+    rows: [
+      ['Mon 22/12','Not Specified','AM Early','06:30','15:30', false, false],
+      ['Tue 23/12','Not Specified','AM Early','06:30','15:30', false, false],
+      ['Wed 24/12','Not Specified','AM Early','06:30','15:30', false, false],
+    ],
+    readOnly: true
+  },
+  'region-regen': {
+    note: 'Regenerate roster clicked. Same 4-hour matching engine as every other trigger — matched against the times already entered on the core-shift roster (06:30 each day), not a new algorithm. Mon\'s closest match at Metro North Hospital starts 08:00 (1.5hrs off, within window) → populates silently. Wed\'s closest match starts 11:00 (4.5hrs off) → populates, flagged. Tue has no matching shift at all → "Not Scheduled".',
+    agency: 'Metro North Hospital',
+    showAgencyPanel: false, showDurationPanel: false, showRegionOnly: true, showBadge: true,
+    rows: [
+      ['Mon 22/12','Metro North Hospital','AM','08:00','16:30', false, false],
+      ['Tue 23/12','Not Scheduled','','','', false, true],
+      ['Wed 24/12','Metro North Hospital','AM','11:00','19:30', true, false],
+    ]
+  },
+  'region-reverse': {
+    note: 'Felix\'s exact example: the reverse direction. Roster is currently agency-specific (Metro North Hospital); coordinator clears the Agency field, reverting the request to region-level. Same label fix applies here too — "Region: Victoria" on the receiving side, not "Not Specified." Reads correctly regardless of which direction the change goes.',
+    agency: '',
+    showAgencyPanel: true, showDurationPanel: false, showRegionOnly: true, showBadge: false,
+    rnaFrom: 'Metro North Hospital', rnaTo: 'Region: Victoria',
+    rows: [
+      ['Mon 22/12','Metro North Hospital','AM','07:00','15:30', false, false],
+      ['Tue 23/12','Metro North Hospital','AM','07:00','15:30', false, false],
+      ['Wed 24/12','Metro North Hospital','AM','07:00','15:30', false, false],
+    ],
+    readOnly: true
+  }
+};
+
+function erRenderRows(rows, readOnly) {
+  const body = document.getElementById('rosterBody');
+  body.innerHTML = '';
+  rows.forEach(([day, agency, shift, start, end, flagged, notScheduled]) => {
+    const tr = document.createElement('tr');
+    if (flagged) tr.className = 'flagged';
+    let agencyCell, shiftCell, timeCell;
+    if (notScheduled) {
+      agencyCell = '<span class="not-scheduled">Not Scheduled</span>';
+      shiftCell = ''; timeCell = '';
+    } else {
+      agencyCell = agency + (flagged ? '<span class="review-reason" title="Hours differ from requested">!</span>' : '');
+      shiftCell = shift;
+      timeCell = start;
+    }
+    const editCell = readOnly
+      ? '<span style="color:#c3c9d1;font-size:11px;">—</span>'
+      : '<a class="edit-link">Edit</a>';
+    tr.innerHTML = `<td>${day}</td><td>${agencyCell}</td><td>${shiftCell}</td><td>${timeCell}</td><td>${notScheduled ? '' : end}</td><td>${editCell}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+function erSwitchScenario(key) {
+  const s = scenarios[key];
+  document.getElementById('scenarioNote').textContent = s.note;
+  document.getElementById('agencyField').value = s.agency || '';
+  document.getElementById('agencyField').placeholder = 'Search...';
+  document.getElementById('agencyField').className = 'field-input';
+  document.getElementById('rnaAgency').style.display = s.showAgencyPanel ? 'block' : 'none';
+  if (s.showAgencyPanel) {
+    document.getElementById('rnaFromValue').textContent = s.rnaFrom || '';
+    document.getElementById('rnaToValue').textContent = s.rnaTo || '';
+  }
+  document.getElementById('rnaDuration').style.display = s.showDurationPanel ? 'block' : 'none';
+  document.getElementById('regionOnlyNote').style.display = s.showRegionOnly ? 'block' : 'none';
+  document.getElementById('badgeRow').style.display = s.showBadge ? 'flex' : 'none';
+
+  // Move the roster box inside whichever panel is active, matching the real screen —
+  // the roster reference sits inside the blue panel while it's open, not in its normal page spot.
+  const box = document.getElementById('rosterInnerBox');
+  if (s.showAgencyPanel) {
+    document.getElementById('rnaAgency').appendChild(box);
+  } else if (s.showDurationPanel) {
+    document.getElementById('rnaDuration').appendChild(box);
+  } else {
+    document.getElementById('rosterNormalAnchor').after(box);
+  }
+
+  const roPanel = s.showAgencyPanel || s.showDurationPanel;
+  ['editPatternBtn','addShiftsBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.display = roPanel ? 'none' : 'inline-block';
+  });
+
+  erRenderRows(s.rows, !!s.readOnly);
+  erCloseDialog();
+  if (s.autoDialog) setTimeout(() => document.getElementById('unresolvedDlg').classList.add('show'), 400);
+}
+
+function erClearRoster() {
+  alert('Clear roster: roster replaced by a blank slate. No days pre-filled — coordinator builds it from scratch.');
+}
+function erRegenerateRoster() {
+  const key = document.getElementById('scenarioSwitch').value;
+  const target = (key === 'region-panel') ? 'region-regen' : 'agency-regen';
+  document.getElementById('scenarioSwitch').value = target;
+  erSwitchScenario(target);
+}
+function erAttemptSave() {
+  const key = document.getElementById('scenarioSwitch').value;
+  const panelOpen = scenarios[key].showAgencyPanel || scenarios[key].showDurationPanel;
+  if (panelOpen) {
+    document.getElementById('unresolvedDlg').classList.add('show');
+  } else {
+    alert('Saved.');
+  }
+}
+function erCloseDialog() {
+  document.getElementById('unresolvedDlg').classList.remove('show');
+}
+
+erSwitchScenario('base');
+</script>
+
+</body>
+</html>

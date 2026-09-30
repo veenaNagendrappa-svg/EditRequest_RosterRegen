@@ -208,7 +208,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
   <div id="rosterInnerBox" class="roster-inner-box">
     <div class="roster-inner-title" id="rosterInnerTitle">Request's current roster</div>
     <div id="badgeRow" class="badge-row" style="display:none;">
-      <span class="ae-banner-pill insufficient">Insufficient: 2/3 Days</span>
+      <span class="ae-banner-pill insufficient" id="badgeText">Insufficient: 2/3 Days</span>
     </div>
     <div class="roster-week-label">Week 1</div>
     <table class="roster-table" id="rosterTable">
@@ -277,7 +277,7 @@ const scenarios = {
     ]
   },
   'duration-panel': {
-    note: 'Coordinator changed Duration/dates on a request that already has a roster — independent trigger from agency change. No agency fields shown on this panel at all. "Clear roster" here behaves differently to the agency-change version: it retains the existing days instead of blanking them.',
+    note: 'Coordinator changed Duration/dates on a request that already has a roster — independent trigger from agency change. No agency fields shown on this panel at all. Clear roster is uniform everywhere on this screen: it always blanks the roster, regardless of trigger. What Regenerate roster actually does underneath (reuse a saved pattern vs. work only with the existing days) isn\'t something the screen shows either way — see the ticket\'s Required Changes for that logic.',
     agency: 'St John of God – Bendigo',
     showAgencyPanel: false, showDurationPanel: true, showRegionOnly: false, showBadge: false,
     rows: [
@@ -384,6 +384,7 @@ function erSwitchScenario(key) {
   document.getElementById('rnaDuration').style.display = s.showDurationPanel ? 'block' : 'none';
   document.getElementById('regionOnlyNote').style.display = s.showRegionOnly ? 'block' : 'none';
   document.getElementById('badgeRow').style.display = s.showBadge ? 'flex' : 'none';
+  document.getElementById('badgeText').textContent = s.badgeText || 'Insufficient: 2/3 Days';
 
   // Move the roster box inside whichever panel is active, matching the real screen —
   // the roster reference sits inside the blue panel while it's open, not in its normal page spot.

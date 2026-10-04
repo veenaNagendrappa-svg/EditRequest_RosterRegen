@@ -46,8 +46,15 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 
 /* "Roster needs attention" inline card — matches CPN-16105's prototype conventions,
    simplified here since Edit Request never has a dropdown, multi-row, or source toggle */
-.rna-card{ background:#eef3f8;border:1px solid #b9d3f0;border-radius:8px; padding:14px 16px;margin:8px 0 16px; }
-.rna-card-title{font-size:13px;font-weight:700;color:#003179;margin-bottom:6px;}
+.rna-card{ background:#ffffff;border:1.5px solid #d97706;border-radius:8px; padding:14px 16px;margin:8px 0 16px; }
+/* Warning treatment (Option D): amber outline + pill, body stays white.
+   Same visual language as the amber-outlined placement cards + pill on
+   the home page. Pill text #92400e on #fef3c7 = 6.4:1; outline #d97706
+   on white = 3.2:1 (meets 3:1 non-text contrast). */
+.rna-card-pill{ display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600;margin-bottom:8px; }
+/* Read-only roster reference sits on grey so it doesn't blend into the white panel */
+.rna-card #plRosterContent, .rna-card #spRosterGenerated, .rna-card #aeRosterGenerated { background:#f3f4f6 !important; border:1px solid #e5e7eb !important; }
+.rna-card-title{font-size:13px;font-weight:700;color:#1a2332;margin-bottom:6px;}
 .rna-card-desc{font-size:12px;color:#374151;line-height:1.5;margin-bottom:14px;}
 .rna-map-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;font-size:12.5px;}
 .rna-map-col{flex:1;}
@@ -69,9 +76,9 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 .ae-banner-pill.insufficient{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
 .ae-banner-pill.overallocated{background:#fef3c7;border-color:#fcd34d;color:#92400e;}
 
-.rna-card .roster-inner-box { background:white; border-radius:6px; padding:14px 16px; margin-top:4px; }
+.rna-card .roster-inner-box { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:6px; padding:14px 16px; margin-top:4px; }
 .roster-inner-title { display:none; }
-.rna-card .roster-inner-title { display:block; font-size:13px; font-weight:700; color:#003179; margin-bottom:10px; }
+.rna-card .roster-inner-title { display:block; font-size:13px; font-weight:700; color:#1a2332; margin-bottom:10px; }
 .roster-week-label { font-size:11.5px; font-weight:700; color:#1976d2; margin-bottom:4px; }
 .roster-table { width:100%; border-collapse:collapse; font-size:12.5px; }
 .roster-table th { text-align:left; font-weight:600; color:#00193e; padding:6px 8px; border-bottom:1px solid #e5e7eb; font-size:11px; }
@@ -98,6 +105,35 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 .open-q { background:#f5f3ff; border:1px dashed #a78bfa; border-radius:8px; padding:12px 14px; margin:8px 0 16px; font-size:11.5px; color:#5b21b6; line-height:1.6; }
 .open-q strong { display:block; margin-bottom:3px; font-size:12px; }
 
+[hidden]{ display:none !important; }
+.combo-controls { display:flex; flex-wrap:wrap; gap:8px 28px; padding:10px 24px 12px; background:#f0f9ff; border-bottom:1px solid #bae6fd; font-size:12px; }
+.combo-controls fieldset { border:0; margin:0; padding:0; }
+.combo-controls legend { font-weight:600; color:#0c4a6e; padding:0; margin-bottom:4px; font-size:11.5px; }
+.combo-controls label { margin-right:14px; color:#1a2332; cursor:pointer; white-space:nowrap; }
+.combo-controls input { margin-right:5px; vertical-align:middle; }
+.combo-controls fieldset.dim { opacity:.55; }
+.rna-card-note { font-size:11.5px; line-height:1.5; margin:0 0 12px; padding:8px 10px; border-radius:5px; }
+.rna-card-note.warn { background:#fffbeb; border:1px solid #fcd34d; color:#92400e; }
+.rna-card-note.info { background:#f3f4f6; border:1px solid #e5e7eb; color:#1a2332; }
+.rna-card-outcome { font-size:11.5px; line-height:1.5; margin:0 0 12px; padding:8px 10px; border-radius:5px; background:#eef3f8; border:1px solid #b9d3f0; color:#1a2332; }
+.matrix-ref { background:#ffffff; border-bottom:1px solid #e5e7eb; font-size:12px; color:#1a2332; }
+.matrix-ref > summary { padding:10px 24px; cursor:pointer; font-weight:600; color:#0c4a6e; }
+.matrix-ref > summary:focus-visible { outline:2px solid #1976d2; outline-offset:-2px; }
+.matrix-inner { padding:2px 24px 18px; }
+.matrix-intro { margin:0 0 12px; color:#4a5568; line-height:1.5; }
+.matrix-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(440px,1fr)); gap:16px 24px; }
+.matrix-grid table { width:100%; border-collapse:collapse; font-size:11.5px; }
+.matrix-grid caption { text-align:left; font-weight:700; padding:4px 0 5px; }
+.matrix-grid th, .matrix-grid td { border:1px solid #e5e7eb; padding:5px 7px; text-align:left; vertical-align:top; }
+.matrix-grid th { background:#f3f4f6; font-weight:600; }
+.matrix-grid td.ena { color:#14532d; font-weight:600; }
+.matrix-grid td.dis { color:#92400e; font-weight:600; }
+.matrix-grid tr.current td { background:#fef3c7; }
+.matrix-grid tr.current td:first-child { box-shadow:inset 3px 0 0 #d97706; }
+.matrix-note { margin:5px 0 0; color:#4a5568; line-height:1.45; font-size:11px; }
+.matrix-rules { margin-top:16px; line-height:1.55; }
+.matrix-rules h3 { font-size:12px; margin:0 0 4px; }
+.matrix-rules ul { margin:4px 0 10px 18px; padding:0; }
 .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; padding:0; margin:-1px; }
 </style>
 </head>
@@ -112,6 +148,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
   <label for="scenarioSwitch">Demo scenario:</label>
   <select id="scenarioSwitch" onchange="erSwitchScenario(this.value)">
     <option value="base">Base state — no trigger fired yet</option>
+    <option value="combo">Combination explorer — any mix of agency / dates / duration</option>
     <option value="agency-panel">Agency changed — panel open (before Regenerate)</option>
     <option value="agency-regen">Agency changed — after Regenerate roster (worked example)</option>
     <option value="duration-panel">Duration/date changed — panel open</option>
@@ -122,7 +159,46 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     <option value="region-reverse">Reverse direction — Agency removed, reverts to region-level</option>
   </select>
 </div>
+<div class="combo-controls" id="comboControls" hidden>
+  <fieldset>
+    <legend>What changed</legend>
+    <label><input type="checkbox" id="comboAgency" checked onchange="erComboRender()">Agency</label>
+    <label><input type="checkbox" id="comboDates" checked onchange="erComboRender()">Dates</label>
+    <label><input type="checkbox" id="comboDuration" onchange="erComboRender()">Duration</label>
+  </fieldset>
+  <fieldset>
+    <legend>Roster was built from</legend>
+    <label><input type="radio" name="comboType" value="pattern" checked onchange="erComboRender()">A pattern</label>
+    <label><input type="radio" name="comboType" value="calendar" onchange="erComboRender()">Calendar (no pattern)</label>
+  </fieldset>
+  <fieldset id="comboOverlapWrap">
+    <legend>New dates vs existing roster days</legend>
+    <label><input type="radio" name="comboOverlap" value="some" checked onchange="erComboRender()">Some overlap</label>
+    <label><input type="radio" name="comboOverlap" value="none" onchange="erComboRender()">No overlap</label>
+  </fieldset>
+</div>
 <div class="demo-note" id="scenarioNote"></div>
+
+<details class="matrix-ref" id="matrixRef">
+  <summary>Scenario matrix: the rows and rules the explorer refers to</summary>
+  <div class="matrix-inner">
+    <p class="matrix-intro">Baseline in every example: Agency C, Mon/Wed, 4 weeks, 8 days, Duration 8. In the Combination explorer, the row matching your selection is highlighted.</p>
+    <div class="matrix-grid" id="matrixGrid"></div>
+    <div class="matrix-rules">
+      <h3>Two rules that govern every row</h3>
+      <ul>
+        <li><strong>Rule A.</strong> Pattern exists, agency changes, and dates or duration also change: Regenerate is always disabled. Agency-only (row 1) is the exception because it never touches date cycling.</li>
+        <li><strong>Rule B.</strong> No pattern, any date-involving trigger: Regenerate is disabled only when the resulting day count is zero. Otherwise it is enabled, even if the agency also changed.</li>
+      </ul>
+      <h3>Also true across every row</h3>
+      <ul>
+        <li>The mapping (Rostered agency to New agency) stays visible when Regenerate is disabled. It is information, not a control.</li>
+        <li>With several agencies, the coordinator always confirms the mapping. Nothing is mapped automatically.</li>
+        <li>The Insufficient/Overallocated badge is always one combined total for the whole placement, never split per agency.</li>
+      </ul>
+    </div>
+  </div>
+</details>
 
 <div class="page-body">
 
@@ -168,8 +244,9 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 
   <!-- Roster needs attention — agency change trigger -->
   <div class="rna-card" id="rnaAgency" style="display:none;">
+    <span class="rna-card-pill"><span aria-hidden="true">⚠</span> Needs your decision</span>
     <div class="rna-card-title">Roster needs attention</div>
-    <div class="rna-card-desc">This change requires the roster to be updated. Choose how to proceed.</div>
+    <div class="rna-card-desc" id="rnaAgencyDesc">Your agency has changed. Choose how to update the roster.</div>
     <div class="rna-map-row">
       <div class="rna-map-col">
         <div class="rna-map-label">Rostered agency</div>
@@ -190,16 +267,21 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
       <button class="rna-card-link" onclick="erClearRoster()">Clear roster</button>
       <button class="rna-card-btn" id="rnaRegenBtn" onclick="erRegenerateRoster()">Regenerate roster</button>
     </div>
+    <div class="rna-card-note" id="rnaAgencyNote" hidden></div>
+    <div class="rna-card-outcome" id="rnaAgencyOutcome" role="status" hidden></div>
   </div>
 
   <!-- Roster needs attention — duration/date change trigger (no agency fields) -->
   <div class="rna-card" id="rnaDuration" style="display:none;">
+    <span class="rna-card-pill"><span aria-hidden="true">⚠</span> Needs your decision</span>
     <div class="rna-card-title">Roster needs attention</div>
-    <div class="rna-card-desc">This change requires the roster to be updated. Choose how to proceed.</div>
+    <div class="rna-card-desc" id="rnaDurationDesc">Your dates have changed. Choose how to update the roster.</div>
     <div class="rna-card-ftr">
-      <button class="rna-card-link">Clear roster</button>
-      <button class="rna-card-btn">Regenerate roster</button>
+      <button class="rna-card-link" onclick="erClearRoster()">Clear roster</button>
+      <button class="rna-card-btn" id="rnaDurRegen" onclick="erRegenerateRoster()">Regenerate roster</button>
     </div>
+    <div class="rna-card-note" id="rnaDurationNote" hidden></div>
+    <div class="rna-card-outcome" id="rnaDurationOutcome" role="status" hidden></div>
   </div>
 
   <!-- Anchor: where the roster box lives when no panel is open (normal page position) -->
@@ -369,6 +451,16 @@ function erRenderRows(rows, readOnly) {
 }
 
 function erSwitchScenario(key) {
+  document.getElementById('comboControls').hidden = (key !== 'combo');
+  if (key === 'combo') { erComboRender(); return; }
+  erMatrixHighlight(null);
+  // Leaving the explorer: put the fixed scenarios' panels back to their own wording and state
+  document.getElementById('rnaAgencyDesc').textContent = 'Your agency has changed. Choose how to update the roster.';
+  document.getElementById('rnaDurationDesc').textContent = 'Your dates have changed. Choose how to update the roster.';
+  ['rnaAgencyNote','rnaDurationNote','rnaAgencyOutcome','rnaDurationOutcome'].forEach(id => { const n = document.getElementById(id); n.hidden = true; n.textContent = ''; });
+  document.getElementById('rnaDurRegen').disabled = false;
+  document.getElementById('rnaRegenBtn').removeAttribute('aria-describedby');
+  document.getElementById('rnaDurRegen').removeAttribute('aria-describedby');
   const s = scenarios[key];
   document.getElementById('scenarioNote').textContent = s.note;
   document.getElementById('agencyField').value = s.agency || '';
@@ -413,13 +505,14 @@ function erClearRoster() {
 }
 function erRegenerateRoster() {
   const key = document.getElementById('scenarioSwitch').value;
+  if (key === 'combo') { erComboRegen(); return; }
   const target = (key === 'region-panel') ? 'region-regen' : 'agency-regen';
   document.getElementById('scenarioSwitch').value = target;
   erSwitchScenario(target);
 }
 function erAttemptSave() {
   const key = document.getElementById('scenarioSwitch').value;
-  const panelOpen = scenarios[key].showAgencyPanel || scenarios[key].showDurationPanel;
+  const panelOpen = key === 'combo' ? erComboAnyChange() : (scenarios[key].showAgencyPanel || scenarios[key].showDurationPanel);
   if (panelOpen) {
     document.getElementById('unresolvedDlg').classList.add('show');
   } else {
@@ -430,6 +523,196 @@ function erCloseDialog() {
   document.getElementById('unresolvedDlg').classList.remove('show');
 }
 
+// ===== Scenario matrix (embedded reference) =====
+const MATRIX = [
+  { key:'a',   title:"1. Agency change only (dates and duration unchanged)", rows:[
+    ['pattern','any',"The pattern's slots are re-matched against the new agency once, then regenerated within the same window","Enabled"],
+    ['calendar','any',"Each existing day is re-matched against the new agency, same dates","Enabled"] ]},
+  { key:'d',   title:"2. Date change only (agency unchanged)", rows:[
+    ['pattern','any',"Regenerates fresh from the pattern across the new window","Enabled"],
+    ['calendar','some',"Days still inside the new range are compared to Duration","Enabled"],
+    ['calendar','none',"No original day survives, so the result matches Clear roster","Disabled, with explanation"] ]},
+  { key:'u',   title:"3. Duration change only (dates and agency unchanged)", note:"If the agency has no shifts configured at all, the existing Configure shifts gate applies instead.", rows:[
+    ['pattern','any',"Regenerates within the same window and stops once the new Duration is met","Enabled"],
+    ['calendar','any',"Window is unchanged, so all days stay in range; the count is compared to the new Duration","Enabled"] ]},
+  { key:'du',  title:"4. Date and duration change together (agency unchanged)", rows:[
+    ['pattern','any',"Regenerates from the pattern across the new window and stops once the new Duration is met","Enabled"],
+    ['calendar','some',"Days still inside the new range are compared to the new Duration","Enabled"],
+    ['calendar','none',"No original day survives","Disabled, with explanation"] ]},
+  { key:'ad',  title:"5. Agency and date change together", rows:[
+    ['pattern','any',"Not available when the agency and dates change together on a roster built from a pattern","Disabled, with explanation"],
+    ['calendar','some',"Days still inside the new range are re-matched against the new agency","Enabled"],
+    ['calendar','none',"No original day survives, so the result matches Clear roster","Disabled, with explanation"] ]},
+  { key:'au',  title:"6. Agency and duration change together (dates unchanged)", rows:[
+    ['pattern','any',"Not available when the agency and duration change together on a roster built from a pattern","Disabled, with explanation"],
+    ['calendar','any',"Window is unchanged; all days are re-matched against the new agency and compared to the new Duration","Enabled"] ]},
+  { key:'adu', title:"7. Agency, date and duration all change together", rows:[
+    ['pattern','any',"Not available when the agency, dates and duration change together on a roster built from a pattern","Disabled, with explanation"],
+    ['calendar','some',"Surviving days are re-matched and compared to the new Duration","Enabled"],
+    ['calendar','none',"No original day survives","Disabled, with explanation"] ]}
+];
+
+function erMatrixBuild() {
+  document.getElementById('matrixGrid').innerHTML = MATRIX.map(g => {
+    const rows = g.rows.map(r => {
+      const overlap = r[1] === 'some' ? 'Some' : r[1] === 'none' ? 'Zero' : (g.key.indexOf('d') >= 0 ? 'Any' : 'n/a');
+      return '<tr data-key="' + g.key + '" data-p="' + r[0] + '" data-o="' + r[1] + '">'
+        + '<td>' + (r[0] === 'pattern' ? 'Yes' : 'No') + '</td><td>' + overlap + '</td><td>' + r[2] + '</td>'
+        + '<td class="' + (r[3].indexOf('Enabled') === 0 ? 'ena' : 'dis') + '">' + r[3] + '</td></tr>';
+    }).join('');
+    return '<div><table><caption>' + g.title + '</caption><thead><tr><th scope="col">Pattern?</th><th scope="col">Overlap</th>'
+      + '<th scope="col">What happens</th><th scope="col">Regenerate</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      + (g.note ? '<p class="matrix-note">' + g.note + '</p>' : '') + '</div>';
+  }).join('');
+}
+
+// Highlights the matrix row that matches the explorer's current selection (null clears it)
+function erMatrixHighlight(s) {
+  const key = s ? (s.a ? 'a' : '') + (s.d ? 'd' : '') + (s.u ? 'u' : '') : '';
+  document.querySelectorAll('#matrixGrid tbody tr').forEach(tr => {
+    const on = !!s && tr.dataset.key === key
+      && (tr.dataset.p === 'any' || tr.dataset.p === (s.p ? 'pattern' : 'calendar'))
+      && (tr.dataset.o === 'any' || tr.dataset.o === s.o);
+    tr.classList.toggle('current', on);
+    if (on) tr.setAttribute('aria-current', 'true'); else tr.removeAttribute('aria-current');
+  });
+}
+
+// ===== Combination explorer =====
+// Implements the scenario matrix: any mix of agency / dates / duration,
+// roster built from a pattern or from Calendar, and (when dates change)
+// whether the new dates overlap the existing roster days.
+const COMBO_TEXT = {
+  patternNote: 'A pattern is available — Regenerate will reuse it.',
+  noOverlap: "These dates don't overlap with the existing roster — Regenerate can't produce any shifts. Clear roster to start again.",
+  patternAgencyDates: "Regenerate isn't available when the agency changes together with dates or duration on a roster built from a pattern. Clear roster to rebuild it for the new agency."
+};
+const COMBO_ROWS = { a:'1 · Agency only', d:'2 · Dates only', u:'3 · Duration only', du:'4 · Dates + duration',
+                     ad:'5 · Agency + dates', au:'6 · Agency + duration', adu:'7 · Agency + dates + duration' };
+
+function erComboState() {
+  const g = id => document.getElementById(id);
+  return {
+    a: g('comboAgency').checked, d: g('comboDates').checked, u: g('comboDuration').checked,
+    p: document.querySelector('input[name="comboType"]:checked').value === 'pattern',
+    o: document.querySelector('input[name="comboOverlap"]:checked').value
+  };
+}
+function erComboAnyChange() { const s = erComboState(); return s.a || s.d || s.u; }
+
+function erComboMessage(s) {
+  const parts = [];
+  if (s.a) parts.push('agency');
+  if (s.d) parts.push('dates');
+  if (s.u) parts.push('duration');
+  const list = parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1];
+  const verb = (parts.length === 1 && parts[0] !== 'dates') ? 'has' : 'have';
+  return 'Your ' + list + ' ' + verb + ' changed. Choose how to update the roster.';
+}
+
+function erComboDecide(s) {
+  const dateOrDur = s.d || s.u;
+  const zeroDays = s.d && s.o === 'none';
+  const key = (s.a ? 'a' : '') + (s.d ? 'd' : '') + (s.u ? 'u' : '');
+  const out = { row: COMBO_ROWS[key], disabled: false, reason: '', info: '', what: '', rule: '' };
+  if (s.a && dateOrDur) {
+    if (s.p) {
+      out.disabled = true; out.reason = COMBO_TEXT.patternAgencyDates;
+      out.rule = 'Rule A: pattern + agency + dates/duration changing together, so Regenerate is disabled';
+    } else if (zeroDays) {
+      out.disabled = true; out.reason = COMBO_TEXT.noOverlap;
+      out.rule = 'Rule B: no pattern and no original day survives, so Regenerate is disabled';
+    } else {
+      out.what = s.d ? 'Days still inside the new range are re-matched against the new agency, then compared to the new Duration.'
+                     : 'All days stay in range; they are re-matched against the new agency and compared to the new Duration.';
+      out.rule = 'Rule B: no pattern and at least one day survives, so Regenerate is enabled';
+    }
+  } else if (s.a) {
+    out.what = s.p ? "The pattern's slots are re-matched against the new agency once, then regenerated within the same window."
+                   : 'Each existing day is re-matched against the new agency, same dates.';
+    if (s.p) out.info = COMBO_TEXT.patternNote;
+    out.rule = 'Agency only never touches date cycling, so Regenerate is enabled';
+  } else if (s.p) {
+    out.what = (s.d && s.u) ? 'Regenerates from the pattern across the new window and stops once the new Duration is met.'
+             : s.d ? 'Regenerates fresh from the pattern across the new window.'
+             : 'Regenerates within the same window and stops once the new Duration is met.';
+    out.info = COMBO_TEXT.patternNote;
+    out.rule = 'Pattern with no agency change: Regenerate is always enabled';
+  } else if (zeroDays) {
+    out.disabled = true; out.reason = COMBO_TEXT.noOverlap;
+    out.rule = 'Rule B: no pattern and no original day survives, so Regenerate is disabled';
+  } else {
+    out.what = s.d ? 'Days still inside the new range are compared to the new Duration. No days are added.'
+                   : 'All existing days stay in range; the day count is compared to the new Duration.';
+    out.rule = 'Rule B: no pattern and at least one day survives, so Regenerate is enabled';
+  }
+  return out;
+}
+
+function erComboRender() {
+  const g = id => document.getElementById(id);
+  const s = erComboState();
+  g('comboOverlapWrap').classList.toggle('dim', !s.d);
+  document.querySelectorAll('input[name="comboOverlap"]').forEach(r => { r.disabled = !s.d; });
+  const any = s.a || s.d || s.u;
+  const agencyCard = g('rnaAgency'), durCard = g('rnaDuration'), box = g('rosterInnerBox');
+  g('regionOnlyNote').style.display = 'none';
+  g('badgeRow').style.display = 'none';
+  erCloseDialog();
+  g('agencyField').value = s.a ? 'Metro North Hospital' : 'St John of God – Bendigo';
+  g('agencyField').className = 'field-input';
+  erRenderRows(scenarios['agency-panel'].rows, any);
+  ['rnaAgencyOutcome','rnaDurationOutcome'].forEach(id => { g(id).hidden = true; g(id).textContent = ''; });
+
+  if (!any) {
+    agencyCard.style.display = 'none'; durCard.style.display = 'none';
+    g('rosterNormalAnchor').after(box);
+    ['editPatternBtn','addShiftsBtn'].forEach(id => { g(id).style.display = 'inline-block'; });
+    g('scenarioNote').textContent = 'Nothing has changed yet. Tick at least one change to see the panel.';
+    erMatrixHighlight(null);
+    return;
+  }
+
+  const r = erComboDecide(s);
+  erMatrixHighlight(s);
+  const card = s.a ? agencyCard : durCard;
+  (s.a ? durCard : agencyCard).style.display = 'none';
+  card.style.display = 'block';
+  if (s.a) {
+    g('rnaFromValue').textContent = 'St John of God – Bendigo';
+    g('rnaToValue').textContent = 'Metro North Hospital';
+    g('rnaNoShiftInline').style.display = 'none';
+  }
+  g(s.a ? 'rnaAgencyDesc' : 'rnaDurationDesc').textContent = erComboMessage(s);
+  const regen = g(s.a ? 'rnaRegenBtn' : 'rnaDurRegen');
+  const other = g(s.a ? 'rnaDurRegen' : 'rnaRegenBtn');
+  other.disabled = false; other.removeAttribute('aria-describedby');
+  const note = g(s.a ? 'rnaAgencyNote' : 'rnaDurationNote');
+  (s.a ? g('rnaDurationNote') : g('rnaAgencyNote')).hidden = true;
+  regen.disabled = r.disabled;
+  note.hidden = !(r.disabled || r.info);
+  note.className = 'rna-card-note ' + (r.disabled ? 'warn' : 'info');
+  note.textContent = r.disabled ? r.reason : r.info;
+  if (r.disabled) regen.setAttribute('aria-describedby', note.id); else regen.removeAttribute('aria-describedby');
+
+  card.appendChild(box);
+  ['editPatternBtn','addShiftsBtn'].forEach(id => { g(id).style.display = 'none'; });
+  g('scenarioNote').textContent = 'Matrix row ' + r.row + ' (open the Scenario matrix above to see it highlighted). ' + r.rule + '. '
+    + (s.a ? 'The mapping stays visible even when Regenerate is disabled. ' : 'No agency mapping is shown for a dates/duration-only change. ')
+    + 'Click Regenerate roster (when enabled) to see what it does.';
+}
+
+function erComboRegen() {
+  const s = erComboState();
+  if (!(s.a || s.d || s.u)) return;
+  const r = erComboDecide(s);
+  if (r.disabled) return;
+  const out = document.getElementById(s.a ? 'rnaAgencyOutcome' : 'rnaDurationOutcome');
+  out.textContent = 'What Regenerate does: ' + r.what;
+  out.hidden = false;
+}
+
+erMatrixBuild();
 erSwitchScenario('base');
 </script>
 

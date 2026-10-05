@@ -187,8 +187,8 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     <div class="matrix-rules">
       <h3>Two rules that govern every row</h3>
       <ul>
-        <li><strong>Rule A.</strong> Pattern exists, agency changes, and dates or duration also change: Regenerate is always disabled. Agency-only (row 1) is the exception because it never touches date cycling.</li>
-        <li><strong>Rule B.</strong> No pattern, any date-involving trigger: Regenerate is disabled only when the resulting day count is zero. Otherwise it is enabled, even if the agency also changed.</li>
+        <li><strong>Agency changed.</strong> The pattern is never used. Regenerate keeps each existing day's shift and matches it to the new agency, so it behaves the same whether or not the roster has a pattern.</li>
+        <li><strong>Regenerate is disabled only when the dates change and no existing day falls inside them.</strong> The one exception is a roster with a pattern and no agency change: it regenerates from the pattern across the new dates, so it stays enabled.</li>
       </ul>
       <h3>Also true across every row</h3>
       <ul>
@@ -326,7 +326,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 <script>
 const scenarios = {
   base: {
-    note: 'Base state. Agency and roster already set, Specify Roster on, nothing has triggered the panel yet — matches the real captured screen.',
+    note: 'Base state. Agency and roster already set, Specify Roster on, nothing has triggered the panel yet — matches the real captured screen. To see every agency / dates / duration combination, pick "Combination explorer" in the dropdown; the Scenario matrix below explains each row.',
     agency: 'St John of God – Bendigo',
     showAgencyPanel: false, showDurationPanel: false, showRegionOnly: false, showBadge: false,
     rows: [
@@ -336,7 +336,7 @@ const scenarios = {
     ]
   },
   'agency-panel': {
-    note: 'Coordinator changed Agency from "St John of God – Bendigo" to "Metro North Hospital" on a request that already has a roster. Panel appears — plain text on both sides, no dropdown, since a Request only ever has one agency. The inline warning + "Configure shifts" link next to "New agency" is the same confirmed pattern as CPN-16105\'s multi-row case, applied here to the single row — Regenerate roster stays disabled until resolved. Roster reference below is read-only: Action/Edit hidden, no warnings shown even though Wed would flag once regenerated.',
+    note: 'Coordinator changed Agency from "St John of God – Bendigo" to "Metro North Hospital" on a request that already has a roster. Panel appears — plain text on both sides, no dropdown, since a Request only ever has one agency. The inline warning + "Configure shifts" link next to "New agency" is the same Configure shifts warning used on every screen in this change — Regenerate roster stays disabled until resolved. Roster reference below is read-only: Action/Edit hidden, no warnings shown even though Wed would flag once regenerated.',
     agency: 'Metro North Hospital',
     showAgencyPanel: true, showDurationPanel: false, showRegionOnly: false, showBadge: false,
     rnaFrom: 'St John of God – Bendigo', rnaTo: 'Metro North Hospital',
@@ -359,7 +359,7 @@ const scenarios = {
     ]
   },
   'duration-panel': {
-    note: 'Coordinator changed Duration/dates on a request that already has a roster — independent trigger from agency change. No agency fields shown on this panel at all. Clear roster is uniform everywhere on this screen: it always blanks the roster, regardless of trigger. What Regenerate roster actually does underneath (reuse a saved pattern vs. work only with the existing days) isn\'t something the screen shows either way — see the ticket\'s Required Changes for that logic.',
+    note: 'Coordinator changed Duration/dates on a request that already has a roster — independent trigger from agency change. No agency fields shown on this panel at all. Clear roster is uniform everywhere on this screen: it always blanks the roster, regardless of trigger. The panel also states what Regenerate will use, and Regenerate is disabled when the dates change and no existing day falls inside them. Every combination is in the Combination explorer.',
     agency: 'St John of God – Bendigo',
     showAgencyPanel: false, showDurationPanel: true, showRegionOnly: false, showBadge: false,
     rows: [
@@ -526,30 +526,25 @@ function erCloseDialog() {
 // ===== Scenario matrix (embedded reference) =====
 const MATRIX = [
   { key:'a',   title:"1. Agency change only (dates and duration unchanged)", rows:[
-    ['pattern','any',"The pattern's slots are re-matched against the new agency once, then regenerated within the same window","Enabled"],
-    ['calendar','any',"Each existing day is re-matched against the new agency, same dates","Enabled"] ]},
+    ['any','any',"Each existing day keeps its shift and is matched to the new agency, same dates. The pattern is not used.","Enabled"] ]},
   { key:'d',   title:"2. Date change only (agency unchanged)", rows:[
-    ['pattern','any',"Regenerates fresh from the pattern across the new window","Enabled"],
-    ['calendar','some',"Days still inside the new range are compared to Duration","Enabled"],
-    ['calendar','none',"No original day survives, so the result matches Clear roster","Disabled, with explanation"] ]},
+    ['pattern','any',"Regenerates from the pattern across the new dates","Enabled"],
+    ['calendar','some',"Only days inside the new dates are regenerated (a partial regeneration, and the panel says so)","Enabled"],
+    ['calendar','none',"No existing day falls inside the new dates, so there is nothing to regenerate","Disabled, with explanation"] ]},
   { key:'u',   title:"3. Duration change only (dates and agency unchanged)", note:"If the agency has no shifts configured at all, the existing Configure shifts gate applies instead.", rows:[
-    ['pattern','any',"Regenerates within the same window and stops once the new Duration is met","Enabled"],
-    ['calendar','any',"Window is unchanged, so all days stay in range; the count is compared to the new Duration","Enabled"] ]},
+    ['any','any',"Extends or shrinks the roster to the new Duration; Insufficient or Overallocated shows the result","Enabled"] ]},
   { key:'du',  title:"4. Date and duration change together (agency unchanged)", rows:[
-    ['pattern','any',"Regenerates from the pattern across the new window and stops once the new Duration is met","Enabled"],
-    ['calendar','some',"Days still inside the new range are compared to the new Duration","Enabled"],
-    ['calendar','none',"No original day survives","Disabled, with explanation"] ]},
+    ['pattern','any',"Regenerates from the pattern across the new dates and stops once the new Duration is met","Enabled"],
+    ['calendar','some',"Only days inside the new dates are regenerated, then compared to the new Duration","Enabled"],
+    ['calendar','none',"No existing day falls inside the new dates","Disabled, with explanation"] ]},
   { key:'ad',  title:"5. Agency and date change together", rows:[
-    ['pattern','any',"Not available when the agency and dates change together on a roster built from a pattern","Disabled, with explanation"],
-    ['calendar','some',"Days still inside the new range are re-matched against the new agency","Enabled"],
-    ['calendar','none',"No original day survives, so the result matches Clear roster","Disabled, with explanation"] ]},
+    ['any','some',"The pattern is not used. Days inside the new dates keep their shift and are matched to the new agency","Enabled"],
+    ['any','none',"No existing day falls inside the new dates","Disabled, with explanation"] ]},
   { key:'au',  title:"6. Agency and duration change together (dates unchanged)", rows:[
-    ['pattern','any',"Not available when the agency and duration change together on a roster built from a pattern","Disabled, with explanation"],
-    ['calendar','any',"Window is unchanged; all days are re-matched against the new agency and compared to the new Duration","Enabled"] ]},
+    ['any','any',"Dates are unchanged, so every day stays in range. Days are matched to the new agency, then Insufficient or Overallocated shows the result","Enabled"] ]},
   { key:'adu', title:"7. Agency, date and duration all change together", rows:[
-    ['pattern','any',"Not available when the agency, dates and duration change together on a roster built from a pattern","Disabled, with explanation"],
-    ['calendar','some',"Surviving days are re-matched and compared to the new Duration","Enabled"],
-    ['calendar','none',"No original day survives","Disabled, with explanation"] ]}
+    ['any','some',"The pattern is not used. Days inside the new dates are matched to the new agency, then compared to the new Duration","Enabled"],
+    ['any','none',"No existing day falls inside the new dates","Disabled, with explanation"] ]}
 ];
 
 function erMatrixBuild() {
@@ -557,7 +552,7 @@ function erMatrixBuild() {
     const rows = g.rows.map(r => {
       const overlap = r[1] === 'some' ? 'Some' : r[1] === 'none' ? 'Zero' : (g.key.indexOf('d') >= 0 ? 'Any' : 'n/a');
       return '<tr data-key="' + g.key + '" data-p="' + r[0] + '" data-o="' + r[1] + '">'
-        + '<td>' + (r[0] === 'pattern' ? 'Yes' : 'No') + '</td><td>' + overlap + '</td><td>' + r[2] + '</td>'
+        + '<td>' + (r[0] === 'pattern' ? 'Yes' : r[0] === 'calendar' ? 'No' : 'Any') + '</td><td>' + overlap + '</td><td>' + r[2] + '</td>'
         + '<td class="' + (r[3].indexOf('Enabled') === 0 ? 'ena' : 'dis') + '">' + r[3] + '</td></tr>';
     }).join('');
     return '<div><table><caption>' + g.title + '</caption><thead><tr><th scope="col">Pattern?</th><th scope="col">Overlap</th>'
@@ -583,9 +578,11 @@ function erMatrixHighlight(s) {
 // roster built from a pattern or from Calendar, and (when dates change)
 // whether the new dates overlap the existing roster days.
 const COMBO_TEXT = {
-  patternNote: 'A pattern is available — Regenerate will reuse it.',
-  noOverlap: "These dates don't overlap with the existing roster — Regenerate can't produce any shifts. Clear roster to start again.",
-  patternAgencyDates: "Regenerate isn't available when the agency changes together with dates or duration on a roster built from a pattern. Clear roster to rebuild it for the new agency."
+  patternNote: "A pattern is available. Regenerate will rebuild the roster from it.",
+  noOverlap: "None of the existing roster days fall inside the new dates, so Regenerate can't produce any shifts. Clear roster to start again.",
+  useShifts: "Regenerate keeps each day's shift and matches it to the new agency. The pattern isn't used when the agency changes.",
+  partial: "Only days inside the new dates are regenerated.",
+  duration: "Regenerate extends or shrinks the roster to the new Duration."
 };
 const COMBO_ROWS = { a:'1 · Agency only', d:'2 · Dates only', u:'3 · Duration only', du:'4 · Dates + duration',
                      ad:'5 · Agency + dates', au:'6 · Agency + duration', adu:'7 · Agency + dates + duration' };
@@ -611,40 +608,39 @@ function erComboMessage(s) {
 }
 
 function erComboDecide(s) {
-  const dateOrDur = s.d || s.u;
-  const zeroDays = s.d && s.o === 'none';
+  const zeroDays = s.d && s.o === 'none';          // dates changed and no existing day falls inside them
   const key = (s.a ? 'a' : '') + (s.d ? 'd' : '') + (s.u ? 'u' : '');
   const out = { row: COMBO_ROWS[key], disabled: false, reason: '', info: '', what: '', rule: '' };
-  if (s.a && dateOrDur) {
-    if (s.p) {
-      out.disabled = true; out.reason = COMBO_TEXT.patternAgencyDates;
-      out.rule = 'Rule A: pattern + agency + dates/duration changing together, so Regenerate is disabled';
-    } else if (zeroDays) {
+
+  if (s.a) {
+    // Agency changed: the pattern is never used. Each existing day's shift is matched to the new agency,
+    // so the result is the same whether or not the roster has a pattern.
+    if (zeroDays) {
       out.disabled = true; out.reason = COMBO_TEXT.noOverlap;
-      out.rule = 'Rule B: no pattern and no original day survives, so Regenerate is disabled';
+      out.rule = 'The agency changed, so the pattern is not used. No existing day falls inside the new dates, so Regenerate is disabled';
     } else {
-      out.what = s.d ? 'Days still inside the new range are re-matched against the new agency, then compared to the new Duration.'
-                     : 'All days stay in range; they are re-matched against the new agency and compared to the new Duration.';
-      out.rule = 'Rule B: no pattern and at least one day survives, so Regenerate is enabled';
+      out.info = COMBO_TEXT.useShifts + (s.d ? ' ' + COMBO_TEXT.partial : '');
+      out.what = s.d && s.u ? 'Days inside the new dates keep their shift and are matched to the new agency, then compared to the new Duration.'
+               : s.d ? 'Days inside the new dates keep their shift and are matched to the new agency.'
+               : s.u ? 'Every day is matched to the new agency, then compared to the new Duration (Insufficient or Overallocated shows the result).'
+               : 'Each existing day keeps its shift and is matched to the new agency, same dates.';
+      out.rule = 'The agency changed, so the pattern is not used, and at least one existing day falls inside the new dates, so Regenerate is enabled';
     }
-  } else if (s.a) {
-    out.what = s.p ? "The pattern's slots are re-matched against the new agency once, then regenerated within the same window."
-                   : 'Each existing day is re-matched against the new agency, same dates.';
-    if (s.p) out.info = COMBO_TEXT.patternNote;
-    out.rule = 'Agency only never touches date cycling, so Regenerate is enabled';
   } else if (s.p) {
-    out.what = (s.d && s.u) ? 'Regenerates from the pattern across the new window and stops once the new Duration is met.'
-             : s.d ? 'Regenerates fresh from the pattern across the new window.'
-             : 'Regenerates within the same window and stops once the new Duration is met.';
+    // No agency change and the roster has a pattern: regenerate from it across the new dates
     out.info = COMBO_TEXT.patternNote;
-    out.rule = 'Pattern with no agency change: Regenerate is always enabled';
+    out.what = (s.d && s.u) ? 'Regenerates from the pattern across the new dates and stops once the new Duration is met.'
+             : s.d ? 'Regenerates from the pattern across the new dates.'
+             : 'Regenerates from the pattern and stops once the new Duration is met.';
+    out.rule = 'Agency unchanged with a pattern: Regenerate rebuilds from the pattern, so it is enabled even with no overlap';
   } else if (zeroDays) {
     out.disabled = true; out.reason = COMBO_TEXT.noOverlap;
-    out.rule = 'Rule B: no pattern and no original day survives, so Regenerate is disabled';
+    out.rule = 'No pattern and no existing day falls inside the new dates, so Regenerate is disabled';
   } else {
-    out.what = s.d ? 'Days still inside the new range are compared to the new Duration. No days are added.'
+    out.info = s.d ? COMBO_TEXT.partial : COMBO_TEXT.duration;
+    out.what = s.d ? 'Days inside the new dates are regenerated and compared to the Duration. No days are added.'
                    : 'All existing days stay in range; the day count is compared to the new Duration.';
-    out.rule = 'Rule B: no pattern and at least one day survives, so Regenerate is enabled';
+    out.rule = 'No pattern and at least one existing day falls inside the new dates, so Regenerate is enabled';
   }
   return out;
 }

@@ -112,9 +112,11 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
 .combo-controls label { margin-right:14px; color:#1a2332; cursor:pointer; white-space:nowrap; }
 .combo-controls input { margin-right:5px; vertical-align:middle; }
 .combo-controls fieldset.dim { opacity:.55; }
-.rna-card-note { font-size:11.5px; line-height:1.5; margin:0 0 12px; padding:8px 10px; border-radius:5px; }
-.rna-card-note.warn { background:#fffbeb; border:1px solid #fcd34d; color:#92400e; }
-.rna-card-note.info { background:#f3f4f6; border:1px solid #e5e7eb; color:#1a2332; }
+.rna-card-explain { font-size:12px; line-height:1.5; color:#4a5568; margin:-6px 0 14px; }
+/* Disabled-action tooltip: dark bubble under the button on hover, like the existing disabled actions in the app */
+.tip-wrap { position:relative; display:inline-block; }
+.tip-wrap [disabled] { pointer-events:none; }
+.tip-wrap[data-tip]:hover::after { content:attr(data-tip); position:absolute; right:0; top:calc(100% + 6px); z-index:60; width:max-content; max-width:240px; background:#3b3b3b; color:#fff; font-size:11px; line-height:1.4; font-weight:400; padding:7px 10px; border-radius:4px; box-shadow:0 2px 6px rgba(0,0,0,.25); text-align:left; white-space:normal; }
 .rna-card-outcome { font-size:11.5px; line-height:1.5; margin:0 0 12px; padding:8px 10px; border-radius:5px; background:#eef3f8; border:1px solid #b9d3f0; color:#1a2332; }
 .matrix-ref { background:#ffffff; border-bottom:1px solid #e5e7eb; font-size:12px; color:#1a2332; }
 .matrix-ref > summary { padding:10px 24px; cursor:pointer; font-weight:600; color:#0c4a6e; }
@@ -187,7 +189,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     <div class="matrix-rules">
       <h3>Two rules that govern every row</h3>
       <ul>
-        <li><strong>Agency changed.</strong> The pattern is never used. Regenerate keeps each existing day's shift and matches it to the new agency, so it behaves the same whether or not the roster has a pattern.</li>
+        <li><strong>Agency changed.</strong> Regenerate works the same way whether or not the roster was built from a pattern. It keeps each existing day's shift and matches it to the new agency.</li>
         <li><strong>Regenerate is disabled only when the dates change and no existing day falls inside them.</strong> The one exception is a roster with a pattern and no agency change: it regenerates from the pattern across the new dates, so it stays enabled.</li>
       </ul>
       <h3>Also true across every row</h3>
@@ -195,6 +197,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
         <li>The mapping (Rostered agency to New agency) stays visible when Regenerate is disabled. It is information, not a control.</li>
         <li>With several agencies, the coordinator always confirms the mapping. Nothing is mapped automatically.</li>
         <li>The Insufficient/Overallocated badge is always one combined total for the whole placement, never split per agency.</li>
+        <li>Each enabled state shows one short line under the message saying what Regenerate will use. A disabled state explains why in a tooltip on hover.</li>
       </ul>
     </div>
   </div>
@@ -231,7 +234,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     <span class="toggle-label">Specify Roster</span>
   </div>
 
-  <div class="tabs">
+  <div class="tabs" id="rosterTabs">
     <div class="tab active">Pattern</div>
     <div class="tab">Calendar</div>
   </div>
@@ -247,6 +250,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     <span class="rna-card-pill"><span aria-hidden="true">⚠</span> Needs your decision</span>
     <div class="rna-card-title">Roster needs attention</div>
     <div class="rna-card-desc" id="rnaAgencyDesc">Your agency has changed. Choose how to update the roster.</div>
+    <div class="rna-card-explain" id="rnaAgencyExplain" hidden></div>
     <div class="rna-map-row">
       <div class="rna-map-col">
         <div class="rna-map-label">Rostered agency</div>
@@ -265,9 +269,8 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     </div>
     <div class="rna-card-ftr">
       <button class="rna-card-link" onclick="erClearRoster()">Clear roster</button>
-      <button class="rna-card-btn" id="rnaRegenBtn" onclick="erRegenerateRoster()">Regenerate roster</button>
+      <span class="tip-wrap" id="rnaRegenTip"><button class="rna-card-btn" id="rnaRegenBtn" onclick="erRegenerateRoster()">Regenerate roster</button><span class="sr-only" id="rnaRegenReason"></span></span>
     </div>
-    <div class="rna-card-note" id="rnaAgencyNote" hidden></div>
     <div class="rna-card-outcome" id="rnaAgencyOutcome" role="status" hidden></div>
   </div>
 
@@ -276,11 +279,11 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     <span class="rna-card-pill"><span aria-hidden="true">⚠</span> Needs your decision</span>
     <div class="rna-card-title">Roster needs attention</div>
     <div class="rna-card-desc" id="rnaDurationDesc">Your dates have changed. Choose how to update the roster.</div>
+    <div class="rna-card-explain" id="rnaDurationExplain" hidden></div>
     <div class="rna-card-ftr">
       <button class="rna-card-link" onclick="erClearRoster()">Clear roster</button>
-      <button class="rna-card-btn" id="rnaDurRegen" onclick="erRegenerateRoster()">Regenerate roster</button>
+      <span class="tip-wrap" id="rnaDurTip"><button class="rna-card-btn" id="rnaDurRegen" onclick="erRegenerateRoster()">Regenerate roster</button><span class="sr-only" id="rnaDurReason"></span></span>
     </div>
-    <div class="rna-card-note" id="rnaDurationNote" hidden></div>
     <div class="rna-card-outcome" id="rnaDurationOutcome" role="status" hidden></div>
   </div>
 
@@ -294,7 +297,7 @@ body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-ser
     </div>
     <div class="roster-week-label">Week 1</div>
     <table class="roster-table" id="rosterTable">
-      <tr><th style="width:15%">Day</th><th style="width:32%">Agency</th><th>Shift</th><th>Start Time</th><th>End Time</th><th style="width:8%"></th></tr>
+      <tr><th style="width:15%">Day</th><th style="width:32%">Agency</th><th>Shift</th><th>Start Time</th><th>End Time</th><th id="rosterActionTh" style="width:8%"></th></tr>
       <tbody id="rosterBody"></tbody>
     </table>
 
@@ -428,6 +431,7 @@ const scenarios = {
 };
 
 function erRenderRows(rows, readOnly) {
+  document.getElementById('rosterActionTh').style.display = readOnly ? 'none' : '';
   const body = document.getElementById('rosterBody');
   body.innerHTML = '';
   rows.forEach(([day, agency, shift, start, end, flagged, notScheduled]) => {
@@ -442,10 +446,9 @@ function erRenderRows(rows, readOnly) {
       shiftCell = shift;
       timeCell = start;
     }
-    const editCell = readOnly
-      ? '<span style="color:#c3c9d1;font-size:11px;">—</span>'
-      : '<a class="edit-link">Edit</a>';
-    tr.innerHTML = `<td>${day}</td><td>${agencyCell}</td><td>${shiftCell}</td><td>${timeCell}</td><td>${notScheduled ? '' : end}</td><td>${editCell}</td>`;
+    // While the panel is open the Action column is hidden entirely (no cell, no header)
+    const editCell = readOnly ? '' : '<td><a class="edit-link">Edit</a></td>';
+    tr.innerHTML = `<td>${day}</td><td>${agencyCell}</td><td>${shiftCell}</td><td>${timeCell}</td><td>${notScheduled ? '' : end}</td>${editCell}`;
     body.appendChild(tr);
   });
 }
@@ -457,10 +460,9 @@ function erSwitchScenario(key) {
   // Leaving the explorer: put the fixed scenarios' panels back to their own wording and state
   document.getElementById('rnaAgencyDesc').textContent = 'Your agency has changed. Choose how to update the roster.';
   document.getElementById('rnaDurationDesc').textContent = 'Your dates have changed. Choose how to update the roster.';
-  ['rnaAgencyNote','rnaDurationNote','rnaAgencyOutcome','rnaDurationOutcome'].forEach(id => { const n = document.getElementById(id); n.hidden = true; n.textContent = ''; });
-  document.getElementById('rnaDurRegen').disabled = false;
-  document.getElementById('rnaRegenBtn').removeAttribute('aria-describedby');
-  document.getElementById('rnaDurRegen').removeAttribute('aria-describedby');
+  ['rnaAgencyOutcome','rnaDurationOutcome'].forEach(id => { const n = document.getElementById(id); n.hidden = true; n.textContent = ''; });
+  erSetRegen('rnaDurRegen', 'rnaDurTip', 'rnaDurReason', false, '');
+  erSetRegen('rnaRegenBtn', 'rnaRegenTip', 'rnaRegenReason', false, '');
   const s = scenarios[key];
   document.getElementById('scenarioNote').textContent = s.note;
   document.getElementById('agencyField').value = s.agency || '';
@@ -471,6 +473,7 @@ function erSwitchScenario(key) {
     document.getElementById('rnaFromValue').textContent = s.rnaFrom || '';
     document.getElementById('rnaToValue').textContent = s.rnaTo || '';
     document.getElementById('rnaNoShiftInline').style.display = s.noShift ? 'inline-flex' : 'none';
+    // Disabled because the new agency has no shifts: the inline warning and Configure shifts link explain it, so no tooltip
     document.getElementById('rnaRegenBtn').disabled = !!s.noShift;
   }
   document.getElementById('rnaDuration').style.display = s.showDurationPanel ? 'block' : 'none';
@@ -490,6 +493,10 @@ function erSwitchScenario(key) {
   }
 
   const roPanel = s.showAgencyPanel || s.showDurationPanel;
+  document.getElementById('rosterTabs').style.display = roPanel ? 'none' : '';
+  const exA = document.getElementById('rnaAgencyExplain'), exD = document.getElementById('rnaDurationExplain');
+  exA.hidden = !(s.showAgencyPanel && !s.noShift); exA.textContent = COMBO_TEXT.agencyLine;
+  exD.hidden = !s.showDurationPanel; exD.textContent = COMBO_TEXT.patternLine;
   ['editPatternBtn','addShiftsBtn'].forEach(id => {
     const el = document.getElementById(id);
     el.style.display = roPanel ? 'none' : 'inline-block';
@@ -526,25 +533,25 @@ function erCloseDialog() {
 // ===== Scenario matrix (embedded reference) =====
 const MATRIX = [
   { key:'a',   title:"1. Agency change only (dates and duration unchanged)", rows:[
-    ['any','any',"Each existing day keeps its shift and is matched to the new agency, same dates. The pattern is not used.","Enabled"] ]},
+    ['any','any',"Each existing day keeps its shift and is matched to the new agency, same dates. Works the same with or without a pattern.","Enabled"] ]},
   { key:'d',   title:"2. Date change only (agency unchanged)", rows:[
     ['pattern','any',"Regenerates from the pattern across the new dates","Enabled"],
     ['calendar','some',"Only days inside the new dates are regenerated (a partial regeneration, and the panel says so)","Enabled"],
-    ['calendar','none',"No existing day falls inside the new dates, so there is nothing to regenerate","Disabled, with explanation"] ]},
+    ['calendar','none',"No existing day falls inside the new dates, so there is nothing to regenerate","Disabled, with tooltip"] ]},
   { key:'u',   title:"3. Duration change only (dates and agency unchanged)", note:"If the agency has no shifts configured at all, the existing Configure shifts gate applies instead.", rows:[
     ['any','any',"Extends or shrinks the roster to the new Duration; Insufficient or Overallocated shows the result","Enabled"] ]},
   { key:'du',  title:"4. Date and duration change together (agency unchanged)", rows:[
     ['pattern','any',"Regenerates from the pattern across the new dates and stops once the new Duration is met","Enabled"],
     ['calendar','some',"Only days inside the new dates are regenerated, then compared to the new Duration","Enabled"],
-    ['calendar','none',"No existing day falls inside the new dates","Disabled, with explanation"] ]},
+    ['calendar','none',"No existing day falls inside the new dates","Disabled, with tooltip"] ]},
   { key:'ad',  title:"5. Agency and date change together", rows:[
-    ['any','some',"The pattern is not used. Days inside the new dates keep their shift and are matched to the new agency","Enabled"],
-    ['any','none',"No existing day falls inside the new dates","Disabled, with explanation"] ]},
+    ['any','some',"Works the same with or without a pattern. Days inside the new dates keep their shift and are matched to the new agency","Enabled"],
+    ['any','none',"No existing day falls inside the new dates","Disabled, with tooltip"] ]},
   { key:'au',  title:"6. Agency and duration change together (dates unchanged)", rows:[
     ['any','any',"Dates are unchanged, so every day stays in range. Days are matched to the new agency, then Insufficient or Overallocated shows the result","Enabled"] ]},
   { key:'adu', title:"7. Agency, date and duration all change together", rows:[
-    ['any','some',"The pattern is not used. Days inside the new dates are matched to the new agency, then compared to the new Duration","Enabled"],
-    ['any','none',"No existing day falls inside the new dates","Disabled, with explanation"] ]}
+    ['any','some',"Works the same with or without a pattern. Days inside the new dates are matched to the new agency, then compared to the new Duration","Enabled"],
+    ['any','none',"No existing day falls inside the new dates","Disabled, with tooltip"] ]}
 ];
 
 function erMatrixBuild() {
@@ -578,12 +585,28 @@ function erMatrixHighlight(s) {
 // roster built from a pattern or from Calendar, and (when dates change)
 // whether the new dates overlap the existing roster days.
 const COMBO_TEXT = {
-  patternNote: "A pattern is available. Regenerate will rebuild the roster from it.",
-  noOverlap: "None of the existing roster days fall inside the new dates, so Regenerate can't produce any shifts. Clear roster to start again.",
-  useShifts: "Regenerate keeps each day's shift and matches it to the new agency. The pattern isn't used when the agency changes.",
+  noOverlap: "These dates don't overlap with the existing roster — Regenerate can't produce any shifts.",
+  agencyLine: "Regenerate keeps each day's shift and matches it to the new agency.",
   partial: "Only days inside the new dates are regenerated.",
-  duration: "Regenerate extends or shrinks the roster to the new Duration."
+  patternLine: "Regenerate rebuilds the roster from its pattern.",
+  durationLine: "Regenerate adjusts the roster to the new duration."
 };
+
+// Disabled Regenerate shows its reason in a hover tooltip (the existing disabled-action pattern).
+// The reason is also exposed to screen readers through aria-describedby.
+function erSetRegen(btnId, tipId, reasonId, disabled, reason) {
+  const g = id => document.getElementById(id);
+  g(btnId).disabled = !!disabled;
+  if (disabled && reason) {
+    g(tipId).setAttribute('data-tip', reason);
+    g(reasonId).textContent = reason;
+    g(btnId).setAttribute('aria-describedby', reasonId);
+  } else {
+    g(tipId).removeAttribute('data-tip');
+    g(reasonId).textContent = '';
+    g(btnId).removeAttribute('aria-describedby');
+  }
+}
 const COMBO_ROWS = { a:'1 · Agency only', d:'2 · Dates only', u:'3 · Duration only', du:'4 · Dates + duration',
                      ad:'5 · Agency + dates', au:'6 · Agency + duration', adu:'7 · Agency + dates + duration' };
 
@@ -613,22 +636,22 @@ function erComboDecide(s) {
   const out = { row: COMBO_ROWS[key], disabled: false, reason: '', info: '', what: '', rule: '' };
 
   if (s.a) {
-    // Agency changed: the pattern is never used. Each existing day's shift is matched to the new agency,
-    // so the result is the same whether or not the roster has a pattern.
+    // Agency changed: Regenerate works the same whether or not the roster has a pattern.
+    // Each existing day keeps its shift and is matched to the new agency.
     if (zeroDays) {
       out.disabled = true; out.reason = COMBO_TEXT.noOverlap;
-      out.rule = 'The agency changed, so the pattern is not used. No existing day falls inside the new dates, so Regenerate is disabled';
+      out.rule = 'The agency changed (pattern or not) and no existing day falls inside the new dates, so Regenerate is disabled';
     } else {
-      out.info = COMBO_TEXT.useShifts + (s.d ? ' ' + COMBO_TEXT.partial : '');
+      out.info = COMBO_TEXT.agencyLine + (s.d ? ' ' + COMBO_TEXT.partial : '');
       out.what = s.d && s.u ? 'Days inside the new dates keep their shift and are matched to the new agency, then compared to the new Duration.'
                : s.d ? 'Days inside the new dates keep their shift and are matched to the new agency.'
                : s.u ? 'Every day is matched to the new agency, then compared to the new Duration (Insufficient or Overallocated shows the result).'
                : 'Each existing day keeps its shift and is matched to the new agency, same dates.';
-      out.rule = 'The agency changed, so the pattern is not used, and at least one existing day falls inside the new dates, so Regenerate is enabled';
+      out.rule = 'The agency changed (pattern or not) and at least one existing day falls inside the new dates, so Regenerate is enabled';
     }
   } else if (s.p) {
     // No agency change and the roster has a pattern: regenerate from it across the new dates
-    out.info = COMBO_TEXT.patternNote;
+    out.info = COMBO_TEXT.patternLine;
     out.what = (s.d && s.u) ? 'Regenerates from the pattern across the new dates and stops once the new Duration is met.'
              : s.d ? 'Regenerates from the pattern across the new dates.'
              : 'Regenerates from the pattern and stops once the new Duration is met.';
@@ -637,7 +660,7 @@ function erComboDecide(s) {
     out.disabled = true; out.reason = COMBO_TEXT.noOverlap;
     out.rule = 'No pattern and no existing day falls inside the new dates, so Regenerate is disabled';
   } else {
-    out.info = s.d ? COMBO_TEXT.partial : COMBO_TEXT.duration;
+    out.info = s.d ? COMBO_TEXT.partial : COMBO_TEXT.durationLine;
     out.what = s.d ? 'Days inside the new dates are regenerated and compared to the Duration. No days are added.'
                    : 'All existing days stay in range; the day count is compared to the new Duration.';
     out.rule = 'No pattern and at least one existing day falls inside the new dates, so Regenerate is enabled';
@@ -664,6 +687,10 @@ function erComboRender() {
     agencyCard.style.display = 'none'; durCard.style.display = 'none';
     g('rosterNormalAnchor').after(box);
     ['editPatternBtn','addShiftsBtn'].forEach(id => { g(id).style.display = 'inline-block'; });
+    g('rosterTabs').style.display = '';
+    g('rnaAgencyExplain').hidden = true; g('rnaDurationExplain').hidden = true;
+    erSetRegen('rnaRegenBtn', 'rnaRegenTip', 'rnaRegenReason', false, '');
+    erSetRegen('rnaDurRegen', 'rnaDurTip', 'rnaDurReason', false, '');
     g('scenarioNote').textContent = 'Nothing has changed yet. Tick at least one change to see the panel.';
     erMatrixHighlight(null);
     return;
@@ -680,22 +707,18 @@ function erComboRender() {
     g('rnaNoShiftInline').style.display = 'none';
   }
   g(s.a ? 'rnaAgencyDesc' : 'rnaDurationDesc').textContent = erComboMessage(s);
-  const regen = g(s.a ? 'rnaRegenBtn' : 'rnaDurRegen');
-  const other = g(s.a ? 'rnaDurRegen' : 'rnaRegenBtn');
-  other.disabled = false; other.removeAttribute('aria-describedby');
-  const note = g(s.a ? 'rnaAgencyNote' : 'rnaDurationNote');
-  (s.a ? g('rnaDurationNote') : g('rnaAgencyNote')).hidden = true;
-  regen.disabled = r.disabled;
-  note.hidden = !(r.disabled || r.info);
-  note.className = 'rna-card-note ' + (r.disabled ? 'warn' : 'info');
-  note.textContent = r.disabled ? r.reason : r.info;
-  if (r.disabled) regen.setAttribute('aria-describedby', note.id); else regen.removeAttribute('aria-describedby');
+  const me  = s.a ? ['rnaRegenBtn', 'rnaRegenTip', 'rnaRegenReason', 'rnaAgencyExplain'] : ['rnaDurRegen', 'rnaDurTip', 'rnaDurReason', 'rnaDurationExplain'];
+  const oth = s.a ? ['rnaDurRegen', 'rnaDurTip', 'rnaDurReason', 'rnaDurationExplain'] : ['rnaRegenBtn', 'rnaRegenTip', 'rnaRegenReason', 'rnaAgencyExplain'];
+  erSetRegen(oth[0], oth[1], oth[2], false, ''); g(oth[3]).hidden = true;
+  erSetRegen(me[0], me[1], me[2], r.disabled, r.reason);          // disabled: reason in the tooltip, no inline line
+  const ex = g(me[3]); ex.hidden = r.disabled || !r.info; ex.textContent = r.info;   // enabled: one line under the message
 
   card.appendChild(box);
   ['editPatternBtn','addShiftsBtn'].forEach(id => { g(id).style.display = 'none'; });
+  g('rosterTabs').style.display = 'none';
   g('scenarioNote').textContent = 'Matrix row ' + r.row + ' (open the Scenario matrix above to see it highlighted). ' + r.rule + '. '
     + (s.a ? 'The mapping stays visible even when Regenerate is disabled. ' : 'No agency mapping is shown for a dates/duration-only change. ')
-    + 'Click Regenerate roster (when enabled) to see what it does.';
+    + (r.disabled ? 'Hover over the disabled Regenerate roster button to see why.' : 'Click Regenerate roster to see what it does.');
 }
 
 function erComboRegen() {
